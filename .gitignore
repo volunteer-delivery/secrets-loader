@@ -1,0 +1,8 @@
+.idea
+.vscode
+.fleet
+.env
+.sshconfig
+.aws-credentails
+.DS_Store
+target/
