@@ -8,5 +8,5 @@ for platform in "${platforms[@]}"; do
     GOARCH=${platform_split[1]}
     output_name=$GOOS'-'$GOARCH
 
-    env GOOS=$GOOS GOARCH=$GOARCH go build -o $output_name ../src/main.go
+    env GOOS=$GOOS GOARCH=$GOARCH go build -o ./build/$output_name ./src/main.go
 done
