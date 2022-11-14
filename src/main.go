@@ -4,36 +4,49 @@ import (
     "fmt"
     "log"
     "os"
+    "secrets-loader/src/loader"
 
-    "github.com/urfave/cli/v2"
+    . "github.com/urfave/cli/v2"
 )
 
+func initLoaderConfig(ctx *Context) *loader.Config {
+    config := loader.NewConfig()
+    config.Path = ctx.String("path")
+    config.Region = ctx.String("region")
+    config.Label = ctx.String("label")
+    return config
+}
+
 func main() {
-    app := &cli.App{
+    app := &App{
         Name:  "secrets-loader",
         Usage: "Load secrets from AWS Parameters Store",
-        Flags: []cli.Flag{
-            &cli.StringFlag{
+        Flags: []Flag{
+            &StringFlag{
                 Name: "path",
                 Aliases: []string{"p"},
                 Usage: "Parameters Path to load from AWS",
+                Required: true,
             },
-            &cli.StringFlag{
+            &StringFlag{
                 Name: "region",
                 Aliases: []string{"r"},
                 Usage: "AWS region",
             },
-            &cli.StringFlag{
+            &StringFlag{
                 Name: "label",
                 Aliases: []string{"l"},
                 Usage: "Filter parametrs by label",
             },
         },
-        Action: func(ctx *cli.Context) error {
-            fmt.Println("boom! I say!")
-            if len(ctx.String("path")) > 0 {
-                fmt.Println(fmt.Sprintf("--path %v", ctx.String("path")))
+        Action: func(ctx *Context) error {
+            instance := loader.NewLoader(initLoaderConfig(ctx))
+            secrets := instance.Load()
+
+            for _, secret := range secrets {
+                fmt.Println(fmt.Sprintf("%v=%v", secret.Name, secret.Value))
             }
+
             return nil
         },
     }

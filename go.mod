@@ -1,4 +1,4 @@
-module github.com/spf13/myapp
+module secrets-loader
 
 go 1.19
 
