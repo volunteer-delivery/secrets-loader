@@ -42,22 +42,22 @@ func main() {
 						Aliases: []string{"l"},
 						Usage:   "Filter parametrs by label",
 					},
-                    &StringFlag{
-                        Name:    "region",
-                        Aliases: []string{"r"},
-                        Usage:   "AWS region",
-                    },
+					&StringFlag{
+						Name:    "region",
+						Aliases: []string{"r"},
+						Usage:   "AWS region",
+					},
 				},
-                Action: func(ctx *Context) error {
-                    loggerInstance := initLogger(ctx)
-                    loaderInstance := loader.NewLoader(loggerInstance, initLoaderConfig(ctx))
+				Action: func(ctx *Context) error {
+					loggerInstance := initLogger(ctx)
+					loaderInstance := loader.NewLoader(loggerInstance, initLoaderConfig(ctx))
 
-                    for _, secret := range loaderInstance.Load() {
-                        loggerInstance.Data("%v=%v", secret.Name, secret.Value)
-                    }
+					for _, secret := range loaderInstance.Load() {
+						loggerInstance.Data("%v=%v", secret.Name, secret.Value)
+					}
 
-                    return nil
-                },
+					return nil
+				},
 			},
 		},
 		Flags: []Flag{

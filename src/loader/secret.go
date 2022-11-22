@@ -1,25 +1,19 @@
 package loader
 
 import (
-    "fmt"
-    "secrets-loader/src/aws_json"
-    "strings"
+	"fmt"
+    ssmTypes "github.com/aws/aws-sdk-go-v2/service/ssm/types"
+	"strings"
 )
 
 type Secret struct {
-    Name  string
-    Value string
+	Name  string
+	Value string
 }
 
-func AwsParameterToSecret(path string, parameter aws_json.Parameter) *Secret {
-    return &Secret{
-        Name:  strings.TrimPrefix(stripSecretQuotes(parameter.Name), fmt.Sprintf("%v/", path)),
-        Value: stripSecretQuotes(parameter.Value),
-    }
-}
-
-func stripSecretQuotes(str string) string {
-    str = strings.TrimPrefix(str, "\"")
-    str = strings.TrimSuffix(str, "\"")
-    return str
+func AwsParameterToSecret(path string, parameter ssmTypes.Parameter) *Secret {
+	return &Secret{
+		Name:  strings.TrimPrefix(*parameter.Name, fmt.Sprintf("%v/", path)),
+		Value: *parameter.Value,
+	}
 }
