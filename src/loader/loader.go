@@ -60,8 +60,11 @@ func (it *Loader) fetchSecrets(paginationToken string) *ssm.GetParametersByPathO
 	input := ssm.GetParametersByPathInput{
 		WithDecryption: &withDescryption,
 		Path:           &it.config.Path,
-		NextToken:      &paginationToken,
 	}
+
+    if len(paginationToken) > 0 {
+        input.NextToken = &paginationToken
+    }
 
 	if it.config.Label != "" {
 		filterKey := "Label"
