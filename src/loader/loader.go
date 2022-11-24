@@ -34,7 +34,8 @@ func initSsmClient(logger *logger.Logger, region string) *ssm.Client {
 }
 
 func (it *Loader) Load() []Secret {
-	it.nextSecrets("")
+	var paginationToken string
+	it.nextSecrets(paginationToken)
 	return it.secrets
 }
 
@@ -55,28 +56,32 @@ func (it *Loader) nextSecrets(paginationToken string) {
 
 func (it *Loader) fetchSecrets(paginationToken string) *ssm.GetParametersByPathOutput {
 	withDescryption := true
-	filterLabelKey := "Label"
 
 	input := ssm.GetParametersByPathInput{
 		WithDecryption: &withDescryption,
 		Path:           &it.config.Path,
 		NextToken:      &paginationToken,
-		ParameterFilters: []ssmTypes.ParameterStringFilter{
-			{
-				Key:    &filterLabelKey,
-				Values: []string{it.config.Label},
-			},
-		},
 	}
 
-	if paginationToken != "" {
-		input.NextToken = &paginationToken
+	if it.config.Label != "" {
+		filterKey := "Label"
+		filter := ssmTypes.ParameterStringFilter{
+			Key:    &filterKey,
+			Values: []string{it.config.Label},
+		}
+		input.ParameterFilters = append(input.ParameterFilters, filter)
 	}
 
-    it.logger.Debug("Fetch secrets with params:")
-    it.logger.Debug("  Path: %v", it.config.Path)
-    it.logger.Debug("  NextToken: %v", paginationToken)
-    it.logger.Debug("  ParameterFilter: Key=%v,Values=%v", filterLabelKey, it.config.Label)
+	it.logger.Debug("Fetch secrets with params:")
+	it.logger.Debug("  Path: %v", it.config.Path)
+
+	if len(paginationToken) > 0 {
+		it.logger.Debug("  NextToken: %v", paginationToken)
+	}
+
+	for _, filter := range input.ParameterFilters {
+		it.logger.Debug("  ParameterFilter: Key=%v,Values=%v", *filter.Key, filter.Values)
+	}
 
 	output, err := it.ssm.GetParametersByPath(context.TODO(), &input)
 
